@@ -97,8 +97,7 @@ export function composeAnswer(
   const officialBacked = getSources(top.chunk.sourceIds).some(
     (s) =>
       s.kind === "official-doc" ||
-      s.kind === "official-pdf" ||
-      s.kind === "uploaded"
+      s.kind === "official-pdf"
   );
   let confidence: ComposedAnswer["confidence"] = "medium";
   if (top.score >= 4 && officialBacked) confidence = "high";

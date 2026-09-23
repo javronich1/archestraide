@@ -1,3 +1,4 @@
+import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
 import { SOURCES } from "@/lib/knowledge/sources";
 import { RUNBOOKS } from "@/lib/knowledge/runbooks";
@@ -46,8 +47,7 @@ export default function AboutPage() {
             en el host, el contexto recuperado se pasa además a Claude con
             instrucciones estrictas de fundamentación para producir una respuesta
             corta pulida — pero la estructura, las fuentes y la confianza siempre
-            vienen de la capa fundamentada, así que las citas siguen siendo
-            confiables. Sin clave, la app funciona del todo con el compositor
+            vienen de la capa fundamentada, así que las citas permiten revisar las fuentes; verifica también el texto generado. Sin clave, la app funciona del todo con el compositor
             determinista.
           </p>
         </div>
@@ -61,7 +61,7 @@ export default function AboutPage() {
         <ul className="space-y-2 text-sm leading-relaxed text-slate-300">
           {[
             "Las respuestas citan sus fuentes y separan los hechos oficiales de las heurísticas de troubleshooting inferidas.",
-            "El asistente no inventa settings, nombres de atributos ni rutas de menú específicas de AVEVA que no estén en una fuente confiable — dice cuándo no está seguro.",
+            "El compositor usa contenido curado. La síntesis opcional con IA puede cometer errores; verifica la respuesta contra las fuentes.",
             "El troubleshooting se enmarca como 'lo más probable / revisa primero', nunca como 'esta es definitivamente la causa'.",
             "Se muestran advertencias específicas del entorno (lab vs producción, modo de autenticación) cuando aplican.",
             "Nunca afirma haber validado el estado en vivo del entorno salvo que tú lo proporciones.",
@@ -81,12 +81,12 @@ export default function AboutPage() {
         </h2>
         <p className="mb-3 text-sm leading-relaxed text-slate-300">
           La forma más rápida es la página{" "}
-          <a href="/manuals" className="text-accent">Manuales</a>: sube tus PDFs de
+          <Link href="/manuals" className="text-accent">Manuales</Link>: sube tus PDFs de
           capacitación de AVEVA Application Server u OMI y se procesan en tu
           navegador, se indexan y se integran en las respuestas (citados como “Tu
           manual”). Se guardan por dispositivo; para una biblioteca compartida,
           ingesta en servidor. También puedes aportar problemas a la{" "}
-          <a href="/community" className="text-accent">Comunidad</a>.
+          <Link href="/community" className="text-accent">Comunidad</Link>.
         </p>
         <p className="text-sm leading-relaxed text-slate-300">
           Para ampliar el conocimiento incorporado, edita el contenido estructurado

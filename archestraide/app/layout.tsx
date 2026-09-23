@@ -5,7 +5,7 @@ import Sidebar from "@/components/Sidebar";
 export const metadata: Metadata = {
   title: "ArchestrAide — AVEVA Application Server & OMI Support Copilot",
   description:
-    "Internal AI support copilot for AVEVA Application Server, OMI & System Platform: grounded answers, guided troubleshooting, runbooks, docs search, glossary, and uploadable manuals.",
+    "Retrieval-based support assistant for AVEVA Application Server and OMI, with cited runbooks, local PDF search and optional Claude synthesis.",
 };
 
 export default function RootLayout({
@@ -14,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body>
         <div className="mx-auto flex min-h-screen max-w-[1400px] flex-col md:flex-row">
           <Sidebar />

@@ -1,137 +1,33 @@
-# Knowledge Ingestion Guide
+# Knowledge ingestion
 
-ArchestrAide is **retrieval-grounded**: every answer is assembled from structured
-content with explicit source citations. This guide explains how the knowledge
-base is organised and how to extend it — including ingesting AVEVA PDFs/manuals.
-
-## How the knowledge base is structured
-
-All content lives in `lib/knowledge/` as typed TypeScript (no database required):
+The bundled corpus is structured TypeScript in `lib/knowledge/`. Public documentation links provide provenance; the application does not fetch those pages at runtime.
 
 | File | Contents |
 | --- | --- |
-| `types.ts` | Shared types: `Source`, `Runbook`, `GlossaryTerm`, `KnownIssue`, `Chunk`, `Topic`. |
-| `sources.ts` | The **source registry**. Every citation references a `Source` by id. Sources are tagged by `kind` (`official-doc`, `official-pdf`, `community`, `runbook`, `glossary`) so the UI can separate *official facts* from *inferred guidance*. |
-| `glossary.ts` | Curated concept pages. |
-| `runbooks.ts` | Curated troubleshooting runbooks. |
-| `knownIssues.ts` | Environment-specific known issues / gotchas. |
-| `index.ts` | Projects everything into a flat `Chunk[]` corpus for retrieval. |
+| `sources.ts` | Source identifiers, titles, public URLs and topics |
+| `runbooks.ts` | Symptoms, likely causes, diagnostic steps and escalation criteria |
+| `glossary.ts` | Concepts, examples and related terms |
+| `knownIssues.ts` | Environment-specific troubleshooting patterns |
+| `types.ts` | Shared source and knowledge types |
+| `index.ts` | Converts the curated entries into searchable chunks |
 
-At build time, `index.ts` denormalises each runbook / glossary term / known issue
-into a `Chunk` (title + searchable body + source ids). The retrieval layer
-(`lib/retrieval.ts`) scores chunks with a hybrid TF-IDF + phrase + intent model.
+## Add a curated entry
 
-## Adding content by hand (fastest)
+1. Add a source with a stable identifier and a working public URL to `sources.ts`.
+2. Add the explanation or runbook to the corresponding knowledge file and reference that identifier in `sourceIds`.
+3. Use your own concise explanation and link to the original documentation. Do not bundle vendor manuals or copy restricted text.
+4. Run `npm test`, `npm run typecheck` and `npm run build:static`.
 
-1. **Add a source** in `sources.ts` (so the answer can cite it):
+The retrieval index is rebuilt from the content at module load. There is no separate database or indexing service.
 
-   ```ts
-   {
-     id: "doc-my-topic",
-     title: "My AVEVA topic — Official doc",
-     kind: "official-doc",
-     url: "https://docs.aveva.com/bundle/.../page/XXupXX.html",
-     reference: "Help › My topic",
-     topics: ["runtime"],
-   }
-   ```
+## Import a PDF in the browser
 
-2. **Add a runbook / glossary term / known issue** referencing that source id via
-   `sourceIds`. Types are enforced by TypeScript, so the shape is self-documenting.
+Open **Manuales**, choose a product and topic, and select a text-based PDF you are permitted to use. `lib/userKnowledge.ts` extracts each page with PDF.js, splits its text into overlapping passages, records page references and saves them in `localStorage`.
 
-3. Rebuild. The new content is automatically retrievable, searchable, citable,
-   and appears in Ask / Troubleshoot / Runbooks / Docs / Glossary.
+Ask and Docs search combine those passages with the bundled corpus. When any uploaded passages are available, Ask uses local composition instead of the optional Claude endpoint. The guided troubleshooting wizard and community pages do not consume this index.
 
-No re-indexing step is needed — the corpus and IDF table are computed at module
-load from the structured content.
+These imports stay in that browser profile and are not written into the repository. The worker script is loaded from jsDelivr; the PDF bytes are processed in the browser. Scanned documents require OCR elsewhere. Browser storage quotas limit manual size, and clearing site storage removes imports.
 
-## Ingesting AVEVA PDFs / manuals
+## Scope
 
-> The original training manual was provided via Google Drive, which is blocked by
-> this environment's network egress policy, so it could not be fetched during the
-> initial build. Content was instead grounded in official `docs.aveva.com` pages
-> and official product PDFs. Use the steps below to ingest the manual once you can
-> provide the file.
-
-### 1. Register the manual as a source
-
-Add (or update) an entry in `sources.ts` with `kind: "official-pdf"`:
-
-```ts
-{
-  id: "pdf-aveva-training",
-  title: "AVEVA Application Server Training Manual",
-  kind: "official-pdf",
-  reference: "Training Manual § <section>",
-  topics: ["concepts", "templates", "deployment", "di", "runtime"],
-}
-```
-
-(A placeholder for this already exists.)
-
-### 2. Extract text chunks from the PDF
-
-A simple, dependency-light pipeline:
-
-```bash
-# Option A: pdftotext (poppler-utils)
-pdftotext -layout AVEVA_Training.pdf manual.txt
-
-# Option B: Python (pypdf)
-pip install pypdf
-python - <<'PY'
-from pypdf import PdfReader
-import json
-r = PdfReader("AVEVA_Training.pdf")
-chunks = []
-for i, page in enumerate(r.pages):
-    text = (page.extract_text() or "").strip()
-    if len(text) < 40:
-        continue
-    chunks.append({
-        "id": f"manual-p{i+1}",
-        "kind": "doc",
-        "title": f"Training Manual — p.{i+1}",
-        "topics": ["concepts"],
-        "text": text,
-        "sourceIds": ["pdf-aveva-training"],
-        "ref": None
-    })
-json.dump(chunks, open("manual_chunks.json","w"), indent=2)
-print(len(chunks), "chunks")
-PY
-```
-
-For better retrieval, split long pages into ~500–800 character passages and tag
-each with the closest `Topic` (see `Topic` union in `types.ts`).
-
-### 3. Load the extracted chunks into the corpus
-
-Drop `manual_chunks.json` into `lib/knowledge/` and merge it in `index.ts`:
-
-```ts
-import manualChunks from "./manual_chunks.json";
-// ...
-export const CHUNKS: Chunk[] = [
-  ...runbookChunks,
-  ...glossaryChunks,
-  ...knownIssueChunks,
-  ...(manualChunks as Chunk[]),
-];
-```
-
-The new passages are immediately searchable and will be cited as
-**Official manual** in answers.
-
-## Upgrading retrieval to real embeddings (optional)
-
-The retrieval seam is intentionally clean: `lib/retrieval.ts` exposes
-`retrieve(query, opts)` and scores `Chunk`s. To move from keyword TF-IDF to
-vector search:
-
-1. Precompute an embedding per `Chunk` (e.g. with an embeddings API) at build time.
-2. Store vectors alongside chunks.
-3. Replace `scoreChunk` with cosine similarity (optionally blended with the
-   existing keyword score for hybrid retrieval).
-
-Nothing else in the app needs to change — the UI consumes `RetrievalResult`s.
+There is no implemented shared manual server, OCR pipeline, automated documentation crawler or embedding service. Community GitHub Issues store submitted troubleshooting entries, not manual files. Extending the bundled corpus makes that text part of the public website and repository, so only add material suitable for redistribution.

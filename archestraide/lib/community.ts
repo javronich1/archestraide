@@ -7,7 +7,7 @@
 // - READ: we fetch open issues from the PUBLIC GitHub API (no auth, 60 req/hr/IP)
 //   and render those carrying our marker as troubleshooting guides for everyone.
 
-export const COMMUNITY_REPO = "javronich1/cv-driver-fatigue-detection";
+export const COMMUNITY_REPO = "javronich1/archestraide";
 const MARKER = "<!-- archestraide-community-v1 -->";
 const LABEL = "community-runbook";
 

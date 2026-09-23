@@ -18,7 +18,7 @@ const KIND_META: Record<
   uploaded: {
     label: "Tu manual",
     cls: "border-accent/30 bg-accent/10 text-accent-soft",
-    official: true,
+    official: false,
   },
   community: {
     label: "Comunidad / proveedor",
@@ -81,7 +81,7 @@ export function SourceCard({ source }: { source: Source }) {
 
 export function SourceList({ sources }: { sources: Source[] }) {
   if (!sources.length) return null;
-  const OFFICIAL = new Set(["official-doc", "official-pdf", "uploaded"]);
+  const OFFICIAL = new Set(["official-doc", "official-pdf"]);
   const official = sources.filter((s) => OFFICIAL.has(s.kind));
   const other = sources.filter((s) => !OFFICIAL.has(s.kind));
   return (
@@ -99,7 +99,7 @@ export function SourceList({ sources }: { sources: Source[] }) {
       {other.length > 0 && (
         <div className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-            Guía inferida / de comunidad
+            Otras fuentes / tus manuales
           </p>
           {other.map((s) => (
             <SourceCard key={s.id} source={s} />

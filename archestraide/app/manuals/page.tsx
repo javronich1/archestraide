@@ -74,7 +74,7 @@ export default function ManualsPage() {
       <PageHeader
         eyebrow="Conocimiento / Manuales"
         title="Sube manuales de capacitación"
-        subtitle="Agrega tus manuales de capacitación de AVEVA Application Server y OMI (PDF). Se procesan en tu navegador y se integran en Preguntar, Troubleshooting y la búsqueda de Docs — con citas de vuelta a tu manual."
+        subtitle="Agrega tus manuales de capacitación de AVEVA Application Server y OMI (PDF). Se procesan en tu navegador y se integran en Preguntar y la búsqueda de Docs — con citas de vuelta a tu manual."
       />
 
       {/* Local-only notice */}
@@ -87,9 +87,7 @@ export default function ManualsPage() {
           <p className="mt-0.5 text-slate-400">
             Las subidas se procesan localmente y se guardan en el almacenamiento de
             este navegador — nada se envía a un servidor y no se comparten con otros
-            usuarios. Borrar los datos del sitio los elimina. Para una biblioteca de
-            manuales compartida por todo el equipo, mira la sección de Comunidad o la
-            vía de ingesta en servidor del README.
+            usuarios. Borrar los datos del sitio los elimina. La Comunidad publica problemas y soluciones; no comparte tus manuales.
           </p>
         </div>
       </div>

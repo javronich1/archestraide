@@ -2,6 +2,7 @@
 
 import { Chunk, Source, Topic, Product } from "./knowledge/types";
 import { registerSources } from "./knowledge/sources";
+import { chunkText } from "./textChunks";
 
 // Client-side ingestion of user-uploaded manuals.
 //
@@ -59,28 +60,6 @@ export function removeManual(id: string): Manual[] {
   const next = listManuals().filter((m) => m.id !== id);
   persist(next);
   return next;
-}
-
-// Split raw text into overlapping passages for retrieval.
-function chunkText(text: string, size = 750, overlap = 100): string[] {
-  const clean = text.replace(/\s+/g, " ").trim();
-  if (clean.length <= size) return clean ? [clean] : [];
-  const out: string[] = [];
-  let i = 0;
-  while (i < clean.length) {
-    let end = Math.min(i + size, clean.length);
-    // Prefer to break on a sentence/space boundary.
-    if (end < clean.length) {
-      const dot = clean.lastIndexOf(". ", end);
-      const space = clean.lastIndexOf(" ", end);
-      const brk = dot > i + size * 0.6 ? dot + 1 : space > i ? space : end;
-      end = brk;
-    }
-    out.push(clean.slice(i, end).trim());
-    i = end - overlap;
-    if (i < 0) i = 0;
-  }
-  return out.filter((c) => c.length > 40);
 }
 
 export interface IngestResult {

@@ -15,7 +15,7 @@ export async function askQuestion(query: string): Promise<ComposedAnswer> {
 
   // Static export (e.g. GitHub Pages) has no /api/ask function — compose locally
   // and skip the wasted 404 round-trip.
-  if (process.env.NEXT_PUBLIC_BASE_PATH) {
+  if (process.env.NEXT_PUBLIC_STATIC_EXPORT === "true") {
     return composeAnswer(query);
   }
   try {

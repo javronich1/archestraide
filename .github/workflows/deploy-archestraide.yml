@@ -2,7 +2,7 @@ name: Deploy ArchestrAide to GitHub Pages
 
 # Builds the ArchestrAide MVP (in /archestraide) as a static export and deploys
 # it to GitHub Pages. The app works fully client-side, so the optional /api/ask
-# serverless route is removed for the static build and the client falls back to
+# serverless route is temporarily excluded for the static build and the client falls back to
 # the deterministic grounded answer composer.
 #
 # NOTE: The primary deploy is Netlify (see netlify.toml). This Pages workflow is
@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
           cache-dependency-path: archestraide/package-lock.json
 
@@ -51,8 +51,7 @@ jobs:
           STATIC_EXPORT: "true"
           BASE_PATH: ${{ steps.pages.outputs.base_path }}
         run: |
-          rm -rf app/api
-          npm run build
+          npm run build:static
           touch out/.nojekyll
 
       - name: Upload Pages artifact

@@ -3,9 +3,7 @@ import { Source } from "./types";
 // Source registry. Official AVEVA documentation is prioritised. Community / vendor
 // tech notes are included but clearly labelled as non-official guidance.
 //
-// NOTE ON UPLOADED MANUALS: When AVEVA training PDFs are ingested (see
-// scripts/ingest.md), add them here with kind "official-pdf" and a `reference`
-// pointing at the section so citations resolve to the manual.
+// User-uploaded manuals are registered at runtime by lib/userKnowledge.ts.
 
 export const SOURCES: Source[] = [
   // ---- Official AVEVA documentation (docs.aveva.com) ----
@@ -187,13 +185,6 @@ export const SOURCES: Source[] = [
     reference: "OMI Workshop Part 3",
     topics: ["omi", "deployment"],
   },
-  {
-    id: "pdf-omi-training",
-    title: "AVEVA InTouch OMI Training Manual (uploaded)",
-    kind: "official-pdf",
-    reference: "Uploaded OMI training manual — ingest to resolve section refs",
-    topics: ["omi", "concepts"],
-  },
 
   // ---- Official AVEVA / Wonderware product manuals (PDF) ----
   {
@@ -245,14 +236,6 @@ export const SOURCES: Source[] = [
     topics: ["historian", "concepts"],
   },
 
-  // ---- Uploaded training manual placeholder ----
-  {
-    id: "pdf-aveva-training",
-    title: "AVEVA Application Server Training Manual (uploaded)",
-    kind: "official-pdf",
-    reference: "Uploaded training manual — ingest to resolve section refs",
-    topics: ["concepts", "templates", "deployment", "di", "runtime"],
-  },
 
   // ---- Community / vendor tech notes (clearly labelled non-official) ----
   {

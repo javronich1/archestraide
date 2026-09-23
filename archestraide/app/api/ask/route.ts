@@ -5,16 +5,11 @@ import { retrieve } from "@/lib/retrieval";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// POST /api/ask  { query: string }
-//
-// Default behaviour (no API key): returns the deterministic, fully-grounded
-// answer composed from the curated knowledge base. This always works and is
-// safe to deploy statically-adjacent.
-//
-// Enhanced behaviour (ANTHROPIC_API_KEY set on the host): the retrieved context
-// is passed to Claude with strict grounding instructions to produce a polished,
-// support-oriented short answer. Structure, sources, tools and confidence still
-// come from the deterministic layer, so citations remain trustworthy.
+// POST /api/ask { query: string }
+// Without a key, return the deterministic composer. With a key, ask Claude to
+// synthesize the retrieved context. Citations and confidence are retrieval
+// metadata; they do not independently verify the generated answer.
+// Static exports exclude this route. Keyed public hosting needs access controls.
 
 const MODEL = process.env.ARCHESTRAIDE_MODEL || "claude-sonnet-4-6";
 
@@ -47,7 +42,7 @@ export async function POST(req: NextRequest) {
       .join("\n\n");
 
     const system = [
-      "Eres ArchestrAide, un copilot interno de soporte para AVEVA Application Server / OMI / System Platform.",
+      "Eres ArchestrAide, un asistente de soporte para AVEVA Application Server / OMI / System Platform.",
       "Responde SIEMPRE en español, pero mantén en inglés los nombres de conceptos y herramientas técnicas (p. ej. Galaxy, Template, AppEngine, OI Server, ViewApp, OnScan, Object Viewer) y los mensajes de error literales.",
       "Responde SOLO usando el CONTEXTO proporcionado, que proviene de documentación oficial de AVEVA y runbooks curados.",
       "NO inventes settings, nombres de atributos, rutas de menú ni nombres de propiedades específicos de AVEVA que no estén en el contexto.",
